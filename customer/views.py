@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 
 # Create your views here.
-from django.views.generic import CreateView,TemplateView,FormView,DetailView,DeleteView,ListView
+from django.views.generic import CreateView,TemplateView,FormView,DetailView,DeleteView,ListView,UpdateView
 from customer import forms
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -30,7 +30,10 @@ class LoginView(FormView):  #formview:used to render form withount using get
             user=authenticate(request,username=username,password=password)
             if user:
                 login(request,user)
-                return redirect("home")
+                if request.user.is_superuser:
+                    return redirect("dashboard")
+                else:
+                    return redirect("home")
             else:
                 return render(request,"login.html",{"form":form})
         return render(request, "login.html")
@@ -82,10 +85,13 @@ class MyCartView(ListView):
     #to override carts.objects.all(default orm)
     def get_queryset(self):
         return Carts.objects.filter(user=self.request.user)
+
     # remove items from cart (update as cancelled)
     #or
     #return Carts.objects.filter(user=self.request.user).exclude(status="cancelled") will rnot show cancelled products
 
 
-
+class PlaceOrderView(FormView):
+    TemplateView="place-order.html"
+    form_class = forms.OrderForm
 
