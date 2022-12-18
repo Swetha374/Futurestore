@@ -1,13 +1,13 @@
 from django.shortcuts import render,redirect
 
 # Create your views here.
-from django.views.generic import CreateView,TemplateView,FormView,DetailView,DeleteView,ListView,UpdateView
+from django.views.generic import CreateView,TemplateView,FormView,DetailView,DeleteView,ListView,UpdateView,View
 from customer import forms
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
-from owner.models import Products,Carts
+from owner.models import Products,Carts,Orders,Categories
 
 class RegistrationView(CreateView):
     model=User
@@ -16,9 +16,12 @@ class RegistrationView(CreateView):
     success_url = reverse_lazy("login")
     #<form action="" class="mt-5" method="post" enctype="multipart/form-data">  :
     # enctype="multipart/form-data" (reg cheyana tymil pro pic or pdf something non text data add cheyanel ith kodukanam formil html pagil
+    def form_valid(self,form):
+        messages.success(self.request,"Your account has been created")
+        return super().form_valid(form)
 
 class LoginView(FormView):  #formview:used to render form withount using get
-    template_name = "login.html"
+    template_name = "signin.html"
     form_class = forms.LoginForm
 
     def post(self, request, *args, **kwargs):
@@ -31,12 +34,20 @@ class LoginView(FormView):  #formview:used to render form withount using get
             if user:
                 login(request,user)
                 if request.user.is_superuser:
-                    return redirect("dashboard")
+                    return redirect("index")
                 else:
                     return redirect("home")
             else:
-                return render(request,"login.html",{"form":form})
-        return render(request, "login.html")
+                return render(request,"signin.html",{"form":form})
+        return render(request, "signin.html")
+
+class SignOutView(View):
+    def get(self,request,*args,**kwargs):
+        logout(request)
+        return redirect("login")
+
+
+
 
 class HomeView(TemplateView):
     template_name:str = "home.html"
@@ -58,6 +69,7 @@ class AddToCartView(FormView):
     template_name = "add-to-cart.html"
     form_class =forms.CartForm
 
+
     #url id extract using get
     def get(self,request,*args,**kwargs):
         id=kwargs.get("id")
@@ -68,7 +80,7 @@ class AddToCartView(FormView):
 
     #add to cart->Add (product add to cart by clicking Add)
     def post(self,request,*args,**kwargs):
-        id = kwargs.get("id")
+        id= kwargs.get("id")
         product = Products.objects.get(id=id)
         qty=request.POST.get("qty") #get("name")->inspect cheythal kitum
         user=request.user
@@ -79,12 +91,13 @@ class AddToCartView(FormView):
 class MyCartView(ListView):
     model = Carts
     template_name = "cart-list.html"
-    context_object_name = "carts"
+    context_object_name = "carts"  #for cart in carts(context)
 
 
     #to override carts.objects.all(default orm)
     def get_queryset(self):
-        return Carts.objects.filter(user=self.request.user)
+        return Carts.objects.filter(user=self.request.user).exclude(status="cancelled").order_by("-created_date")
+        #order_by sort ascending, order_by("-created_date")->sort descending
 
     # remove items from cart (update as cancelled)
     #or
@@ -92,6 +105,26 @@ class MyCartView(ListView):
 
 
 class PlaceOrderView(FormView):
-    TemplateView="place-order.html"
+    template_name = "place-order.html"
     form_class = forms.OrderForm
 
+    #checkout click=> carts/placeorder/cartid/productid
+    def post(self, request, *args, **kwargs):  #...=spread operator
+        cart_id=kwargs.get("cid")
+        product_id=kwargs.get("pid")
+        cart=Carts.objects.get(id=cart_id)
+        product=Products.objects.get(id=product_id)
+        user=request.user #logged user
+        delivery_address=request.POST.get("delivery_address")
+        Orders.objects.create(product=product,user=user,delivery_address=delivery_address)
+        cart.status="order-placed" #order place cheythal status
+        cart.save()
+        return redirect("home")
+def cartitem_remove(request, *args, **kwargs):
+    cart_id = kwargs.get("id")
+    print(cart_id)
+    cart = Carts.objects.get(id=cart_id)
+    cart.status = "cancelled"
+    cart.save()
+    messages.success(request, "Item removed...")
+    return redirect("mycart")

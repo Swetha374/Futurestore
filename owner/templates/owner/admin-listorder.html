@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>Dashboard - SB Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet"/>
+    <link href="{%static 'owner/css/styles.css'%}" rel="stylesheet"/>
+    <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <table class="table">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>User</th>
+                    <th>Created_date</th>
+                    <th>Action</th>
+                </tr>
+                {%for order in orders%}
+                <tr>
+                    <td>{{order.product.product_name}}</td>
+                    <td>{{order.product.category.category_name}}</td>
+                    <td>{{order.user}}</td>
+                    <td>{{order.created_date}}</td>
+                    <td>
+                        <a href="{%url 'order-details' order.id%}">view</a>
+                    </td>
+                </tr>
+                {%endfor%}
+            </table>
+        </div>
+        <div class="col-2"></div>
+    </div>
+</div>
+</body>
+</html>

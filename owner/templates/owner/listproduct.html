@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>Dashboard - SB Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet"/>
+    <link href="{%static 'owner/css/styles.css'%}" rel="stylesheet"/>
+    <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+
+        </div>
+        <div class="col-8">
+            <table class="table">
+                <tr>
+
+                    <th>product_name</th>
+                    <th>category</th>
+                    <th>image</th>
+                    <th> price</th>
+                    <th>description</th>
+                </tr>
+                {%for  product in product%}
+                <tr>
+
+                    <td>{{product.product_name}}</td>
+                    <td>{{product.category}}</td>
+                    <td><img class="card-img-top" src="{{product.image.url}}" alt="" height="60"></td>
+                    <td>{{product.price}}</td>
+                    <td>{{product.description}}</td>
+                     <td>
+                        <a href="{%url 'edit-product' product.id %}" class="btn btn-outline-warning">Edit</a>
+
+
+                    </td>
+                    <td><a href="{%url 'delete-product' product.id %}" class="btn btn-outline-danger">Delete</a>
+</td>
+
+                </tr>
+                {%endfor%}
+            </table>
+        </div>
+        <div class="col-2"></div>
+    </div>
+</div>
+</body>
+</html>

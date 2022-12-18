@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>Dashboard - SB Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet"/>
+    <link href="{%static 'owner/css/styles.css'%}" rel="stylesheet"/>
+    <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+              {%if messages%}
+            {%for m in messages%}
+            {% if m.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+             <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>{{m}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+             {% if m.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+             <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{m}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            {%endfor%}
+            {%endif%}
+        </div>
+        <div class="col-8">
+            <table class="table">
+                <tr>
+
+                    <th>Category name</th>
+                    <th> is_active</th>
+
+                </tr>
+                {%for  category in category%}
+                <tr>
+
+                    <td>{{category.category_name}}</td>
+                    <td>{{category.is_active}}</td>
+                     <td>
+                        <a href="{%url 'edit-category' category.id %}" class="btn btn-outline-warning">Edit</a>
+                        <a href="{%url 'delete-category' category.id %}" class="btn btn-outline-danger">Delete</a>
+
+
+                    </td>
+
+                </tr>
+                {%endfor%}
+            </table>
+        </div>
+        <div class="col-2"></div>
+    </div>
+</div>
+</body>
+</html>
